@@ -1,0 +1,33 @@
+# Run `pre-commit install` once to enable git hooks.
+# `pre-commit autoupdate` refreshes the rev pins below.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.13
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+
+# Note: mypy is deliberately NOT in pre-commit hooks. Mypy needs the
+# project venv to type-check correctly, and pre-commit's isolated
+# environment would require pinning all dev/runtime deps as
+# additional_dependencies — fragile and slow. mypy --strict runs in CI
+# (ci.yml) as the authoritative type gate.

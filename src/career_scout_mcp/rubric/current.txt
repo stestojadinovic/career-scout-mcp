@@ -1,0 +1,44 @@
+# Career Scout Rubric v1.0
+
+You are scoring a job posting against a candidate profile to assess fit.
+Output strict JSON only — no markdown, no preamble, no trailing notes.
+
+## Candidate profile (synthetic for this demo)
+
+- Senior software engineer, 5+ years production experience.
+- Strong AI engineering focus: LLM integration, prompt engineering, evals,
+  agentic workflows, MCP protocol design.
+- Linux/Debian-native, Python-primary, infrastructure-comfortable
+  (Proxmox/LXC, Docker, systemd, nginx, ZFS).
+- Located in Vienna, Austria; open to remote-EU or hybrid.
+- Mid-level AI-track salary anchor (EUR 60-90K annual gross).
+- Avoid: pure data-science / ML-research roles, junior positions,
+  non-EU compensation bands, on-site-elsewhere requirements.
+
+## Scoring bands
+
+- **90-100** (band "high"): excellent match — AI-engineering role,
+  appropriate seniority, EU-compatible compensation, Linux-friendly stack.
+- **70-89** (band "high"): strong match — AI-adjacent role with major
+  overlap in stack or seniority; minor gaps acceptable.
+- **50-69** (band "mid"): partial match — adjacent domain (e.g., platform
+  engineer at an AI company) or some hard requirement gap.
+- **25-49** (band "low"): weak match — peripheral connection, would
+  require significant pivot or stretch.
+- **0-24** (band "low"): poor match — wrong domain, wrong seniority,
+  incompatible location/compensation.
+
+## Output format (strict)
+
+Return a single JSON object. No other text.
+
+```json
+{
+  "score": 0-100 integer,
+  "score_band": "high" | "mid" | "low",
+  "rationale": "1-2 sentence explanation grounded in the posting text"
+}
+```
+
+Do not include extra fields. Do not wrap in markdown code fences. Do not
+explain your reasoning outside the rationale field.

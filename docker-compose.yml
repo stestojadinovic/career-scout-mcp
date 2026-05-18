@@ -1,0 +1,50 @@
+# Local development setup: career-scout-mcp + Ollama
+#
+# Bring up the stack:
+#   docker compose up -d
+#   docker compose exec ollama ollama pull qwen2.5:3b
+#   docker compose exec career-scout-mcp uv run python scripts/seed_db.py
+#
+# Then attach an MCP client over stdio:
+#   docker compose run --rm -T career-scout-mcp uv run python -m career_scout_mcp
+#
+# Or run the test suite inside the container:
+#   docker compose run --rm career-scout-mcp uv run pytest tests/
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: career-scout-ollama
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  career-scout-mcp:
+    build: .
+    container_name: career-scout-mcp
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      LITELLM_MODEL: ollama/qwen2.5:3b
+      SCOUT_DATA_PATH: /var/lib/career-scout-mcp/scout-data
+      TAGGED_MISMATCHES_DB: /var/lib/career-scout-mcp/tagged.db
+      DIGEST_OUTPUT_PATH: /var/lib/career-scout-mcp/digests
+      RUBRIC_PATH: /opt/career-scout-mcp/src/career_scout_mcp/rubric/current.txt
+      MCP_TRANSPORT: stdio
+    volumes:
+      - scout-data:/var/lib/career-scout-mcp
+    stdin_open: true
+    tty: true
+
+volumes:
+  ollama-data:
+  scout-data:

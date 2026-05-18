@@ -1,0 +1,13 @@
+title = "career-scout-mcp gitleaks config"
+
+# The default gitleaks ruleset is used; this file adds allowlist rules
+# for paths that intentionally contain token-shaped strings as test
+# fixtures or examples.
+
+[allowlist]
+description = "Test fixtures and example env intentionally contain token-shaped strings"
+paths = [
+    '''tests/test_logging\.py''',
+    '''tests/test_main\.py''',
+    '''\.env\.example''',
+]
