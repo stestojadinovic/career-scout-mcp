@@ -1,0 +1,66 @@
+# career-scout-mcp.service
+#
+# systemd unit for the HTTP transport. Place at
+# /etc/systemd/system/career-scout-mcp.service and enable with
+# `systemctl enable --now career-scout-mcp`.
+#
+# Deployment prerequisites:
+#   1. Dedicated unprivileged user/group:
+#      useradd --system --no-create-home --shell /usr/sbin/nologin mcp
+#   2. Install to /opt/career-scout-mcp; `uv sync` inside creates .venv/
+#   3. Environment file at /etc/career-scout-mcp/env (mode 0640, root:mcp)
+#   4. State directory at /var/lib/career-scout-mcp (mcp:mcp, mode 0750)
+#
+# For stdio-mode usage (Claude Desktop, Cursor, etc.), no systemd service
+# is needed — the client process spawns the server directly. Enable this
+# unit only if you want a persistent loopback HTTP endpoint.
+
+[Unit]
+Description=Career Scout MCP Server (HTTP transport)
+Documentation=https://career-scout-mcp.stojadinovic.at
+After=network-online.target
+Wants=network-online.target
+# If running local Ollama as the LLM provider, add ollama.service to After= above.
+
+[Service]
+Type=simple
+User=mcp
+Group=mcp
+WorkingDirectory=/opt/career-scout-mcp
+EnvironmentFile=/etc/career-scout-mcp/env
+ExecStart=/opt/career-scout-mcp/.venv/bin/python -m career_scout_mcp
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=15
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/career-scout-mcp
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+ProtectProc=invisible
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @mount @debug @cpu-emulation @obsolete @raw-io @reboot @swap
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=career-scout-mcp
+
+[Install]
+WantedBy=multi-user.target
