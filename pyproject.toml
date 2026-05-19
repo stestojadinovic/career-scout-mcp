@@ -1,7 +1,7 @@
 [project]
 name = "career-scout-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "Production-grade MCP server demonstrating LLM-based job posting scoring with provider abstraction, strict input validation, and minimal trust surface."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
