@@ -19,9 +19,13 @@ dependencies = [
     "pydantic>=2.13.4,<3.0.0",
     # Environment-variable-driven settings layer over pydantic
     "pydantic-settings>=2.14.1,<3.0.0",
-    # ASGI server for HTTP transport mode (stdio default is server-less)
-    "uvicorn>=0.47.0,<0.48.0",
-]
+    ]
+
+   [project.optional-dependencies]
+   http = [
+       # ASGI server for HTTP transport mode (stdio default needs no server)
+       "uvicorn>=0.47.0,<0.48.0",
+   ]
 
 [project.scripts]
 career-scout-mcp = "career_scout_mcp:main"
