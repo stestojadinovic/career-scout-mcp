@@ -13,7 +13,7 @@
 
 services:
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.24.0
     container_name: career-scout-ollama
     volumes:
       - ollama-data:/root/.ollama
