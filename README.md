@@ -30,11 +30,16 @@ Full architecture and design decisions: **[career-scout-mcp.stojadinovic.at](htt
 - [uv](https://docs.astral.sh/uv/) — dependency and environment management
 - [Ollama](https://ollama.com/) — default local LLM provider for `qwen2.5:3b`
 
+> **Memory**: Ollama's headroom calc for qwen2.5:3b requires ~6 GiB of *available* memory (it counts buff/cache as unavailable). A 4 GiB system may fail to load the model even though it's 1.9 GB on disk.
+
 ### Debian 13
 
+    sudo apt-get update && sudo apt-get install -y curl ca-certificates zstd
     curl -LsSf https://astral.sh/uv/install.sh | sh
     curl -fsSL https://ollama.com/install.sh | sh
     ollama pull qwen2.5:3b
+
+> Note: `zstd` is required by the Ollama installer for archive extraction on minimal Debian; not all base images include it.
 
 ### macOS
 
