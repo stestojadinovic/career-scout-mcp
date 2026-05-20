@@ -19,10 +19,10 @@ from __future__ import annotations
 
 import ipaddress
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, field_validator, model_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -65,7 +65,9 @@ class Settings(BaseSettings):
     # Logging. Patterns are matched as substrings against every log line
     # before emission (see logging.py). Comma-separated in env, list here.
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
-    log_redact_patterns: list[str] = Field(
+    # NoDecode suppresses pydantic-settings' default JSON-decode of complex
+    # env values so the field_validator below can accept either CSV or JSON.
+    log_redact_patterns: Annotated[list[str], NoDecode] = Field(
         default_factory=lambda: [
             "sk-",
             "AKIA",
@@ -96,9 +98,17 @@ class Settings(BaseSettings):
 
     @field_validator("log_redact_patterns", mode="before")
     @classmethod
-    def _split_redact_patterns(cls, v: object) -> object:
-        # Allow .env comma-separated form ("sk-,AKIA,..."). Lists pass through.
+    def _parse_csv_or_json(cls, v: object) -> object:
+        # env files conventionally use CSV; this validator runs in place of
+        # pydantic-settings' default JSON decoder (suppressed via NoDecode).
+        # Accept both shapes so .env.example's CSV values work without
+        # JSON-escaping while explicit JSON lists are still honored.
         if isinstance(v, str):
+            stripped = v.strip()
+            if stripped.startswith("["):
+                import json
+
+                return json.loads(stripped)
             return [p.strip() for p in v.split(",") if p.strip()]
         return v
 
