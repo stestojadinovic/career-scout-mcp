@@ -30,6 +30,7 @@ Design choices defended:
 from __future__ import annotations
 
 import asyncio
+import hmac
 from typing import Any, Awaitable, Callable
 
 from mcp.server.fastmcp import FastMCP
@@ -69,7 +70,7 @@ class BearerAuthMiddleware(BaseHTTPMiddleware):
         auth = request.headers.get("authorization", "")
         if not auth.startswith("Bearer "):
             return JSONResponse({"error": "missing bearer token"}, status_code=401)
-        if auth.removeprefix("Bearer ") != self._expected:
+        if not hmac.compare_digest(auth.removeprefix("Bearer "), self._expected):
             return JSONResponse({"error": "invalid bearer token"}, status_code=401)
         return await call_next(request)
 

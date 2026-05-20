@@ -31,7 +31,7 @@ on top of parameterization, not in place of it. Defense in depth.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -82,7 +82,11 @@ class Score(BaseModel):
     id: int
     posting_id: str
     score: int = Field(ge=0, le=100)
-    score_band: str
+    # Closed set — bands are produced by the LLM scoring layer and must
+    # match the CSS classes used by regenerate_digest's HTML output.
+    # Tightening from str to Literal also makes that interpolation safe
+    # to embed without html.escape().
+    score_band: Literal["high", "mid", "low"]
     rationale: str | None
     model: str
     rubric_version: str

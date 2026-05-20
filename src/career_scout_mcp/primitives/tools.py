@@ -32,6 +32,8 @@ Design choices defended:
 
 from __future__ import annotations
 
+import html
+
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel
 
@@ -190,25 +192,29 @@ async def regenerate_digest() -> DigestResult:
         score = r.latest_score
         if score is None:
             continue
+        # score.score_band is a Literal["high","mid","low"] (see Score in
+        # storage/queries.py), so band-{score.score_band} is safe to embed
+        # without escaping. Every other interpolation is user/LLM-supplied
+        # text and must be html.escape()d.
         html_parts.append(
             f"<div class='post'>"
-            f"<h2>{r.posting.title} "
+            f"<h2>{html.escape(r.posting.title)} "
             f"<span class='score band-{score.score_band}'>{score.score}</span>"
             f"</h2>"
-            f"<p class='meta'><strong>{r.posting.company}</strong> &middot; "
-            f"{r.posting.location or 'remote'} &middot; "
-            f"{r.posting.posted_date} &middot; "
-            f"{r.posting.role_anchor}</p>"
-            f"<p><em>{score.rationale or ''}</em></p>"
+            f"<p class='meta'><strong>{html.escape(r.posting.company)}</strong> &middot; "
+            f"{html.escape(r.posting.location or 'remote')} &middot; "
+            f"{html.escape(r.posting.posted_date)} &middot; "
+            f"{html.escape(r.posting.role_anchor)}</p>"
+            f"<p><em>{html.escape(score.rationale or '')}</em></p>"
             f"</div>"
         )
     html_parts.append("</body></html>")
-    html = "\n".join(html_parts)
+    html_doc = "\n".join(html_parts)
 
     output_dir = settings.digest_output_path
     output_dir.mkdir(parents=True, exist_ok=True)
     output_file = output_dir / "current.html"
-    bytes_written = output_file.write_text(html, encoding="utf-8")
+    bytes_written = output_file.write_text(html_doc, encoding="utf-8")
 
     return DigestResult(
         path=str(output_file),
