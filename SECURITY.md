@@ -65,3 +65,16 @@ Adversarial input tests live in `tests/test_security.py`.
 A full threat model with trust boundaries diagram lives in the project
 documentation at
 <https://career-scout-mcp.stojadinovic.at/architecture.html#threat-model>.
+
+## Known issues
+
+### CVE-2025-45768 — PyJWT weak key length enforcement
+
+pip-audit flags `pyjwt 2.12.1` with PYSEC-2025-183 (CVE-2025-45768): the library does not enforce minimum key length on HMAC/RSA JWS operations. Upstream PyJWT disputes the CVE as application-level responsibility; no fix is planned.
+
+**Our exposure: none.** PyJWT is a transitive dependency pulled in by `mcp` (the official Python MCP SDK). career-scout-mcp does not exercise JWT code paths:
+- stdio transport has no auth headers
+- HTTP transport (loopback-only when enabled) uses static-secret Bearer middleware via `hmac.compare_digest`, not JWT
+- PyJWT's `decode`/`encode` is never called by our code
+
+We accept this transitive risk and document it here for any reviewer running `pip-audit` against the repo.

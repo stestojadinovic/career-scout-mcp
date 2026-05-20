@@ -65,6 +65,8 @@ jobs:
         run: uv sync --frozen
 
       - name: pip-audit (advisory)
+        # Advisory only: pyjwt 2.12.1 has CVE-2025-45768 (disputed upstream, no fix planned).
+        # See SECURITY.md "Known issues" for analysis of why this doesn't affect our threat model.
         continue-on-error: true
         run: |
           uv export --frozen --no-hashes > /tmp/reqs.txt
