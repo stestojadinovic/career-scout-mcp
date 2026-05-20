@@ -24,6 +24,28 @@ Full architecture and design decisions: **[career-scout-mcp.stojadinovic.at](htt
 - **loguru** structured JSON logging with secret redaction
 - **Debian 13** LXC, **cloudflared** edge termination, **nginx** static docs
 
+## Prerequisites
+
+- Python 3.13 (uv manages this automatically)
+- [uv](https://docs.astral.sh/uv/) — dependency and environment management
+- [Ollama](https://ollama.com/) — default local LLM provider for `qwen2.5:3b`
+
+### Debian 13
+
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    curl -fsSL https://ollama.com/install.sh | sh
+    ollama pull qwen2.5:3b
+
+### macOS
+
+    brew install uv ollama
+    ollama serve &
+    ollama pull qwen2.5:3b
+
+### Windows
+
+[uv installer](https://docs.astral.sh/uv/getting-started/installation/) · [Ollama installer](https://ollama.com/download/windows), then `ollama pull qwen2.5:3b`.
+
 ## Quick start (local stdio)
 
 ```bash
@@ -31,7 +53,15 @@ uv sync
 uv run python -m career_scout_mcp
 ```
 
-The server exposes 4 tools, 5 resources, and 2 prompts via stdio. Connect from Claude Desktop, Claude Code, or OpenCode by pointing them at this binary.
+The server exposes 4 tools, 5 resources (6 URIs), and 2 prompts via stdio. Connect from Claude Desktop, Claude Code, or OpenCode by pointing them at this binary.
+
+### Try it out
+
+The fastest way to exercise the server is via [MCP Inspector](https://github.com/modelcontextprotocol/inspector):
+
+    npx @modelcontextprotocol/inspector uv run python -m career_scout_mcp
+
+Opens a browser UI at `localhost:6274` where you can list resources, render prompts, and invoke tools end-to-end against your local Ollama.
 
 ## Development
 
@@ -47,7 +77,7 @@ See [SECURITY.md](SECURITY.md) for reporting. Key posture:
 - systemd hardening (non-root, ProtectSystem=strict, etc.)
 - MCP server NEVER publicly exposed (stdio default, HTTP bound 127.0.0.1 only)
 - TLS via Cloudflare edge — no local cert management surface
-- Self-hosted GHA runner restricted to tag-push events; PR workflows use GitHub-hosted runners
+- Docs deploy via manual `scripts/deploy_docs.sh`. MCP server is never publicly exposed — stdio default; HTTP transport loopback-only behind Bearer auth (`hmac.compare_digest`).
 
 ## License
 

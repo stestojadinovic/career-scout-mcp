@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from career-scout-mcp!")
+"""Career Scout MCP server: synthetic-data MCP wrapper for job posting scoring."""
