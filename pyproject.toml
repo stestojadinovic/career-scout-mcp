@@ -52,7 +52,7 @@ dev = [
     # Coverage reporting for pytest
     "pytest-cov>=7.1.0,<8.0.0",
     # Fast Python linter and formatter
-    "ruff>=0.15.13,<0.16.0",
+    "ruff>=0.15.13,<0.17.0",
 ]
 
 [tool.pytest.ini_options]
