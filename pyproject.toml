@@ -24,7 +24,7 @@ dependencies = [
 [project.optional-dependencies]
 http = [
     # ASGI server for HTTP transport mode (stdio default needs no server)
-    "uvicorn>=0.47.0,<0.48.0",
+    "uvicorn>=0.47.0,<0.53.0",
 ]
 
 [project.scripts]
